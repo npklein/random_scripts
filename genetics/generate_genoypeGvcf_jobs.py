@@ -1,11 +1,14 @@
 import math
 import glob  
 
+##### CHANGE BELOW VARIABLES #####
 outdir="path/to/write/output/"
 jobs_dir = "path/to/write/jobs/"
 merged_vcf_dir = "directory/with/merged/vcf/files"
 ref_genome = "/apps/data/ftp.broadinstitute.org/bundle/2.8/b37/human_g1k_v37.fasta"
 batches = 19
+dbsnp = '/apps/data/dbSNP/dbsnp_138.b37.vcf'
+project_name = 'BIOS_freeze2'
 
 template = """#!/bin/bash
 #SBATCH --job-name=GenotypeGvcf_chrREPLACECHROMOSOME
@@ -75,10 +78,10 @@ for chr in chromosomes:
         new_template = template.replace('REPLACENUMBEROFBATCHES',str(batches))
         new_template = new_template.replace('REPLACECHROMOSOME',chr)
         new_template = new_template.replace('REPLACEOUTDIR',outdir)
-        new_template = new_template.replace('REPLACEOUTPUT','BIOS_freeze2_chr'+chr+'.gg.vcf.gz')
-        new_template = new_template.replace('REPLACEINPREFIX', merged_vcf_dir+'BIOS')
+        new_template = new_template.replace('REPLACEOUTPUT',project_name+'_chr'+chr+'.gg.vcf.gz')
+        new_template = new_template.replace('REPLACEINPREFIX', merged_vcf_dir+project_name)
         new_template = new_template.replace('REPLACEREFGENOME',ref_genome)
-        new_template=new_template.replace('REPLACEDBSNP', '/apps/data/dbSNP/dbsnp_138.b37.vcf')
+        new_template=new_template.replace('REPLACEDBSNP', dbsnp)
         out.write(new_template)
     print(outfile)
 
