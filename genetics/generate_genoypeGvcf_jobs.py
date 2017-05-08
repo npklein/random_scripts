@@ -5,6 +5,7 @@ outdir="path/to/write/output/"
 jobs_dir = "path/to/write/jobs/"
 merged_vcf_dir = "directory/with/merged/vcf/files"
 ref_genome = "/apps/data/ftp.broadinstitute.org/bundle/2.8/b37/human_g1k_v37.fasta"
+batches = 19
 
 template = """#!/bin/bash
 #SBATCH --job-name=GenotypeGvcf_chrREPLACECHROMOSOME
@@ -63,7 +64,6 @@ fi
 
 """
 
-batches = 19
 chromosomes = ['1','2','3','4','5','6','7',
         '8','9','10','11','12','13','14',
          '15','16','17','18','19','20',
