@@ -60,7 +60,6 @@ else
  echo "fail";
 fi
 
-echo "## "$(date)" ##  $0 Done "I
 
 """
 
