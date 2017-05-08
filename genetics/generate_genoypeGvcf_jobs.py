@@ -51,9 +51,9 @@ if java -Xmx38g -XX:ParallelGCThreads=2 -Djava.io.tmpdir=${TMPDIR} -jar $EBROOTG
 then
  echo "returncode: $?"; 
  
- cd 
- md5sum REPLACEOUTPUT > REPLACEOUTPUT.md5
- cd -
+cd REPLACEOUTDIR
+md5sum REPLACEOUTPUT > REPLACEOUTPUT.md5
+cd -
  echo "succes moving files";
 else
  echo "returncode: $?";
