@@ -1,26 +1,26 @@
 for dr in $(seq 0 0.1 1); 
 do
-echo ${dr}
-jobDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/phasingDifferentFilters/shapeit/DR${dr}/
-mkdir -p $jobDir
-for i in {1..22}
-do
-  mkdir -p /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/phasingDifferentFilters/shapeit/DR${dr}/chr${i}/
-done
+  echo ${dr}
+  jobDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/phasingDifferentFilters/shapeit/DR${dr}/
+  mkdir -p $jobDir
+  for i in {1..22}
+  do
+    mkdir -p /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/phasingDifferentFilters/shapeit/DR${dr}/chr${i}/
+  done
+  
+ while read line
+ do
 
-while read line
-do
-
-#echo $line
-CHR=`echo $line | awk '{print $1}' FS=","`
-START=`echo $line | awk '{print $2}' FS=":" | awk '{print $1}' FS="-"`
-END=`echo $line | awk '{print $2}' FS=":" | awk '{print $2}' FS="-"`
-RESULTSDIR="/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/shapeit_DR${dr}/chr$CHR/"
-INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/beagleToShapeit_DR${dr}/
-INPUTPREFIX=$INPUTDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr${i}.beagle.DR${dr}.Filteredgenotype
+    #echo $line
+    CHR=`echo $line | awk '{print $1}' FS=","`
+    START=`echo $line | awk '{print $2}' FS=":" | awk '{print $1}' FS="-"`
+    END=`echo $line | awk '{print $2}' FS=":" | awk '{print $2}' FS="-"`
+    RESULTSDIR="/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/shapeit_DR${dr}/chr$CHR/"
+    INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/beagleToShapeit_DR${dr}/
+    INPUTPREFIX=$INPUTDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr${CHR}.beagle.DR${dr}.Filteredgenotype
 
 
-echo "#!/bin/bash
+    echo "#!/bin/bash
 #SBATCH --job-name=chr$CHR.$START.$END.DR${dr}.genotypes_BIOS_LLDeep_Diagnostics_merged_ShapeitPhasing
 #SBATCH --output=SBATCH --output=ShapeitPhasing.chr$CHR.$START.$END.DR${dr}.out
 #SBATCH --error=ShapeitPhasing.chr$CHR.$START.$END.DR${dr}.err
@@ -30,7 +30,7 @@ echo "#!/bin/bash
 #SBATCH --nodes 1
 #SBATCH --export=NONE
 #SBATCH --get-user-env=30L
-#SBATCH --qos=regular
+#SBATCH --qos=leftover
 
 set -e
 set -u
@@ -93,4 +93,3 @@ echo \"## \"\$(date)\" ##  \$0 Done \"
 
 done</groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/geneChunks.20170519.csv
 done
-

@@ -10,7 +10,7 @@ do
     mkdir -p $jobDir
     INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/shapeitVCF_DR${dr}/chr${CHR}/
     OUTPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/shapeitVCF_DR${dr}/
-    OUTPUTVCF=${OUTPUTDIR}/${VCFPREFIX}${CHR}.concat${VCFPOSTFIX%.gz}
+    OUTPUTVCF=${OUTPUTDIR}/${VCFPREFIX}${CHR}.DR${dr}.concat${VCFPOSTFIX%.gz}
     echo "#!/bin/bash
 #SBATCH --job-name=MergeVCF.chr${CHR}
 #SBATCH --output=MergeVCF.chr${CHR}.out

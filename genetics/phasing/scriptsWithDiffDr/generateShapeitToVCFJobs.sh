@@ -1,4 +1,4 @@
-for dr in $(seq 0 0.1 0.9);
+for dr in $(seq 0 0.1 1);
 do
   echo ${dr}
   for i in {1..22}

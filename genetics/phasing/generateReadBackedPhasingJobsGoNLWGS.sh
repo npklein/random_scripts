@@ -3,12 +3,12 @@ baseq=10
 OneKgPhase3VCF="/apps/data/1000G/phase3/20130502//ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz"
 
 
-mkdir -p /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/readbackedPhasingGoNLWGS/chr$1/
 
 for CHR in {1..22}
 do  # to skip header
   RESULTSDIR="/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/readbackedPhasingGoNLWGS/chr$CHR/"
-  mkdir -p /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/readbackedPhasingGoNLWGS/chr$CHR/
+  jobsDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/readbackedPhasingGoNLWGS/chr$CHR/
+  mkdir -p $jobsDir
   SKIPPED=0
 
   while read individual_bam_link; do
@@ -20,7 +20,7 @@ do  # to skip header
     bname=$(basename $bam)
     SAMPLENAME=$(echo $individual_bam_link | awk -F"," '{ print $2}')
 
-    if ! grep -Fxq "$SAMPLENAME" GoNL_variants/gonlSamplesRNAids.txt
+    if ! grep -Fxq "$SAMPLENAME" /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/GoNL_variants/gonlSamplesRNAids.txt
     then
 #        echo "$SAMPLENAME not in GoNL"
         continue
@@ -32,8 +32,8 @@ do  # to skip header
     fi
     echo "$SAMPLENAME in GoNL, make job"
 
-    WGSID=$(grep -w $SAMPLENAME GoNL_variants/linking_file.txt | awk '{ print $1 }')
-
+    WGSID=$(grep -w $SAMPLENAME /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/GoNL_variants/linking_file.txt | awk '{ print $1 }')
+    echo "$jobsDir/ReadbackedPhasing.$SAMPLENAME.chr$CHR.sh"
     echo "#!/bin/bash
 #SBATCH --job-name=$SAMPLENAME.chr$CHR.ReadbackPhasing
 #SBATCH --output=ReadbackedPhasing.$SAMPLENAME.chr$CHR.out
@@ -68,8 +68,8 @@ mkdir -p $RESULTSDIR/haplotypic_counts/
 mkdir -p $RESULTSDIR/allele_config/
 mkdir -p $RESULTSDIR/vcf_per_sample/
 
-VCFDIR=\"/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/GoNL_variants/\"
-VCFNAME=\"gonl-abc_samples.chr$CHR.release5.NoMAFSelection.vcf.gz\"
+VCFDIR=\"/groups/umcg-bios/tmp03/projects/GoNL_WGS_phased_genotypes\"
+VCFNAME=\"gonl.chr${CHR}.snps_indels.149samples.subset.r5.3.vcf.gz\"
 VCF=\"\$VCFDIR/\$VCFNAME\"
 
 phaserOutPrefix=$RESULTSDIR/BIOS_LLDeep_Diagnostics_phASER.$SAMPLENAME.chr$CHR
@@ -90,7 +90,6 @@ output=\$(python \$EBROOTPHASER/phaser/phaser.py \\
     --gw_phase_vcf 1 \\
     --show_warning 1 \\
     --debug 1)
-
 # blacklist takes too long
 #    --blacklist /apps/data/ftp.nygenome.org/sec/phaser/hg19_haplo_count_blacklist.bed.gz \\
 
@@ -136,7 +135,7 @@ echo \"returncode: $?\"
 echo \"succes moving files\";
 echo \"## \"\$(date)\" ##  \$0 Done \"
 
-">/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/readbackedPhasingGoNLWGS/chr$CHR/ReadbackedPhasing.$SAMPLENAME.chr$CHR.sh
+">$jobsDir/ReadbackedPhasing.$SAMPLENAME.chr$CHR.sh
    done</groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/individual_bam_link.txt
 
 done</groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/phasedGeneChunks.21062017.csv
