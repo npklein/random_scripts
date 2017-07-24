@@ -20,7 +20,7 @@ print('reading data')
 #contig    start    stop    name    aCount    bCount    totalCount    log2_aFC    n_variants    variants    gw_phased    bam
 for subdir, dirs, files in os.walk(args.geneAE_rootdir):
     for file in files:
-        if not file.endswith('.txt') or not 'chr22' in file:
+        if not file.endswith('.txt'):
             continue
         geneAE_file = subdir+'/'+file
         if args.verbose:
