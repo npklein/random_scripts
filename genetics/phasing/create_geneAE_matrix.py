@@ -37,7 +37,8 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                 gene = line[3]
                 log2_aFC = line[7]
                 totalCount = line[6]
-                genes.append(gene)
+                if not gene in genes:
+                    genes.append(gene)
 
                 gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount}
 
