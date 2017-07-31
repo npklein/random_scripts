@@ -1,13 +1,13 @@
-mapq=10
+mapq=255
 baseq=10
-OneKgPhase3VCF="/apps/data/1000G/phase3/20130502//ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.vcf.gz"
 
-
-
+SAMPLEINVCF=/groups/umcg-bios/tmp04/projects/GoNL_readbackedPhasing/samples_in_vcf.txt
+LINKINGFILE=/groups/umcg-bios/tmp04/projects/bbmriSampleInfo/freeze2_GoNL_related_GTE_30092016_QCpassed.csv
+VCFDIR=/groups/umcg-gdio/tmp04/projects/5gpmRna/gavin3/passBiallelicPhased/mergedVCFs/annotated.with.GoNL.AFandAC/06_IL_haplotype_panel/
 for CHR in {1..22}
 do  # to skip header
-  RESULTSDIR="/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/readbackedPhasingGoNLWGS/chr$CHR/"
-  jobsDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/readbackedPhasingGoNLWGS/chr$CHR/
+  RESULTSDIR="/groups/umcg-bios/tmp04/projects/GoNL_readbackedPhasing/results/readbackedPhasingGoNLWGS/chr$CHR/"
+  jobsDir=/groups/umcg-bios/tmp04/projects/GoNL_readbackedPhasing/jobs/readbackedPhasingGoNLWGS/chr$CHR/
   mkdir -p $jobsDir
   SKIPPED=0
 
@@ -20,19 +20,19 @@ do  # to skip header
     bname=$(basename $bam)
     SAMPLENAME=$(echo $individual_bam_link | awk -F"," '{ print $2}')
 
-    if ! grep -Fxq "$SAMPLENAME" /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/GoNL_variants/gonlSamplesRNAids.txt
+    if ! grep -Fxq "$SAMPLENAME" $LINKINGFILE
     then
 #        echo "$SAMPLENAME not in GoNL"
         continue
     fi
-    if ! grep -Fxq "$SAMPLENAME" /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/samples_in_vcf.txt;
+    if ! grep -Fxq "$SAMPLENAME" $SAMPLEINVCF;
     then
         echo "$SAMPLENAME not in VCF"
         continue
     fi
     echo "$SAMPLENAME in GoNL, make job"
 
-    WGSID=$(grep -w $SAMPLENAME /groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/GoNL_variants/linking_file.txt | awk '{ print $1 }')
+    WGSID=$(grep -w $SAMPLENAME $LINKINGFILE | awk '{ print $3 }')
     echo "$jobsDir/ReadbackedPhasing.$SAMPLENAME.chr$CHR.sh"
     echo "#!/bin/bash
 #SBATCH --job-name=$SAMPLENAME.chr$CHR.ReadbackPhasing
@@ -53,7 +53,7 @@ ENVIRONMENT_DIR='.'
 
 ml purge
 module load tabix/0.2.6-foss-2015b
-module load phASER/20170606-e75699d
+module load phASER/20170714-cd7daba
 module load BCFtools/1.3-foss-2015b
 module load BEDTools/2.25.0-foss-2015b
 module list
@@ -67,10 +67,8 @@ mkdir -p $RESULTSDIR/haplotypes/
 mkdir -p $RESULTSDIR/haplotypic_counts/
 mkdir -p $RESULTSDIR/allele_config/
 mkdir -p $RESULTSDIR/vcf_per_sample/
-
-VCFDIR=\"/groups/umcg-bios/tmp03/projects/GoNL_WGS_phased_genotypes\"
-VCFNAME=\"gonl.chr${CHR}.snps_indels.149samples.subset.r5.3.vcf.gz\"
-VCF=\"\$VCFDIR/\$VCFNAME\"
+VCFNAME=\"gonl.chr${CHR}.snps_indels.r5.3.vcf.gz\"
+VCF=\"$VCFDIR/\$VCFNAME\"
 
 phaserOutPrefix=$RESULTSDIR/BIOS_LLDeep_Diagnostics_phASER.$SAMPLENAME.chr$CHR
 #Set output prefix per sample for statistics etc.
@@ -86,12 +84,11 @@ output=\$(python \$EBROOTPHASER/phaser/phaser.py \\
     --threads 1 \\
     --gw_phase_method 1 \\
     --chr $CHR \\
-    --gw_af_vcf $OneKgPhase3VCF \\
     --gw_phase_vcf 1 \\
     --show_warning 1 \\
-    --debug 1)
-# blacklist takes too long
-#    --blacklist /apps/data/ftp.nygenome.org/sec/phaser/hg19_haplo_count_blacklist.bed.gz \\
+    --debug 1 \\
+    --blacklist /apps/data/ftp.nygenome.org/sec/phaser/hg19_hla.bed.gz \\
+    --haplo_count_blacklist /apps/data/ftp.nygenome.org/sec/phaser/hg19_haplo_count_blacklist.bed.gz )
 
 # phaser does't send appropriate exit signal so try like this
 if echo \$output | grep -q ERROR;
@@ -136,8 +133,5 @@ echo \"succes moving files\";
 echo \"## \"\$(date)\" ##  \$0 Done \"
 
 ">$jobsDir/ReadbackedPhasing.$SAMPLENAME.chr$CHR.sh
-   done</groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/individual_bam_link.txt
-
-done</groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/phasedGeneChunks.21062017.csv
-
+done
 

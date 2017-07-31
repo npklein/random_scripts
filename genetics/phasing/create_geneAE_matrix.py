@@ -14,7 +14,7 @@ print('Writing results to '+args.out_prefix)
 print('Start combining...')
 
 gene_data = {}
-gene_names = []
+sample_names = []
 genes = []
 print('reading data')
 #contig    start    stop    name    aCount    bCount    totalCount    log2_aFC    n_variants    variants    gw_phased    bam
@@ -33,7 +33,7 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                 name = line[-1].split('.')[0]
                 if not name in gene_data:
                     gene_data[name] = {}
-                    gene_names.append(name)
+                    sample_names.append(name)
                 gene = line[3]
                 log2_aFC = line[7]
                 totalCount = line[6]
@@ -44,7 +44,7 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
 
 print('writing data')
 with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_prefix+'.totalDepth.txt','w') as outTotalCount:
-    for name in gene_names:
+    for name in sample_names:
         outLog2_aFC.write('\t'+name)
         outTotalCount.write('\t'+name)
     outLog2_aFC.write('\n')
@@ -52,7 +52,7 @@ with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_p
     for gene in genes:
         outLog2_aFC.write(gene)
         outTotalCount.write(gene)
-        for name in gene_names:
+        for name in sample_names:
             outLog2_aFC.write('\t'+str(gene_data[name][gene]['log2_aFC']))
             outTotalCount.write('\t'+str(gene_data[name][gene]['totalCount']))
         outLog2_aFC.write('\n')
