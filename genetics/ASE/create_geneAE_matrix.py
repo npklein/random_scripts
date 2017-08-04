@@ -6,6 +6,7 @@ parser = argparse.ArgumentParser(description='Make matrix (genes x samples) of t
 parser.add_argument('geneAE_rootdir', help='Rootdir where all gene counts can be found. Will walk through subdirs and use all *.txt files')
 parser.add_argument('out_prefix', help='Write output to <out_prefix>.geneCounts.txt, <out_prefix>.totalDepth.txt, and <out_prefix>.alleleCounts.txt')
 parser.add_argument('--verbose', action='store_true',help='If set, print out which files are being used')
+parser.add_argument('--removeNoCounts', action='store_true', help='Remove genes for which totalDepth is 0 for all samples')
 
 args = parser.parse_args()
 print('Combining gene count files from '+args.geneAE_rootdir)
@@ -43,6 +44,17 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                     genes.append(gene)
                 gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount,
                                          'aCount':aCount,'bCount':bCount}
+
+if args.removeNoCounts:
+    for gene in genes:
+        noZeros = False
+        for name in sample_names:
+            if int(gene_data[name][gene]['totalCount']) > 0:
+                noZeros = True
+            if not noZeros:
+                print('Gene has 0 totalCount for all samples, removing '+gene)
+                for name in sample_names:
+                    del(gene_data[name][gene])
 
 print('writing data')
 with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_prefix+'.totalDepth.txt','w') as outTotalCount:
