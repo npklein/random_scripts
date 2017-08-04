@@ -28,7 +28,6 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
             print(geneAE_file)
         with open(geneAE_file) as input_file:
             input_file.readline()
-            input_file.readline()
             for line in input_file:
                 line = line.strip().split('\t')
                 name = line[-1].split('.')[0]
@@ -42,19 +41,25 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                 bCount = line[5]
                 if not gene in genes:
                     genes.append(gene)
-                gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount,
+                    gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount,
                                          'aCount':aCount,'bCount':bCount}
 
-if args.removeNoCounts:
-    for gene in genes:
-        noZeros = False
-        for name in sample_names:
+
+
+for gene in list(genes):
+    noZeros = False
+    for name in sample_names:
+        if gene not in gene_data[name]:
+            gene_data[name][gene] = {'log2_aFC':'Inf', 'totalCount':0,
+                                         'aCount':0,'bCount':0}
+        if args.removeNoCounts:
             if int(gene_data[name][gene]['totalCount']) > 0:
                 noZeros = True
-            if not noZeros:
-                print('Gene has 0 totalCount for all samples, removing '+gene)
-                for name in sample_names:
-                    del(gene_data[name][gene])
+    if not noZeros:
+        print('Gene has 0 totalCount for all samples, removing '+gene)
+        for name in sample_names:
+            del(gene_data[name][gene])
+        genes.remove(gene)
 
 print('writing data')
 with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_prefix+'.totalDepth.txt','w') as outTotalCount:
@@ -67,7 +72,7 @@ with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_p
         outLog2_aFC.write('\n')
         outTotalCount.write('\n')
         outAlleleCounts.write('\n')
-        for gene in genes:
+        for gene in sorted(genes):
             outLog2_aFC.write(gene)
             outTotalCount.write(gene)
             outAlleleCounts.write(gene)
