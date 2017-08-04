@@ -37,21 +37,13 @@ module list
 #                        in more confident phasing if genotypes were population
 #                        prephased. Value must be between 0 and 0.5.
 mkdir -p results/gene_ae/
-for i in {1..22}
+for haplotype_count in results/haplotypic_counts/*.txt
 do
-  for haplotype_count in chr$i/haplotypic_counts/*.txt
-  do
-    SAMPLENAME=$(echo $haplotype_count | awk -F"." '{print $2}')
-    echo $haplotype_count
-    echo $SAMPLENAME
-    if [ ! -f results/gene_ae/chr$i.$SAMPLENAME.geneAE.txt ];
-    then
-      python $EBROOTPHASER/phaser_gene_ae/phaser_gene_ae.py --haplotypic_counts $haplotype_count --features hg19_ensembl.bed \
-                           --o results/gene_ae/chr$i.$SAMPLENAME.geneAE.txt
-    else
-        echo "exists"
-    fi
-  done
+  SAMPLENAME=$(echo $haplotype_count | awk -F"." '{print $2}')
+  echo $haplotype_count
+  echo $SAMPLENAME
+  python $EBROOTPHASER/phaser_gene_ae/phaser_gene_ae.py --haplotypic_counts $haplotype_count --features /apps/data/ftp.nygenome.org/sec/phaser/hg19_ensembl.bed \
+                           --o results/gene_ae/$SAMPLENAME.geneAE.txt
 done
 
 
