@@ -7,9 +7,12 @@ parser.add_argument('geneAE_rootdir', help='Rootdir where all gene counts can be
 parser.add_argument('out_prefix', help='Write output to <out_prefix>.geneCounts.txt, <out_prefix>.totalDepth.txt, and <out_prefix>.alleleCounts.txt')
 parser.add_argument('--verbose', action='store_true',help='If set, print out which files are being used')
 parser.add_argument('--removeNoCounts', action='store_true', help='Remove genes for which totalDepth is 0 for all samples')
+parser.add_argument('--chr', help='Which chromosome to make table for')
 
 args = parser.parse_args()
 print('Combining gene count files from '+args.geneAE_rootdir)
+if args.chr:
+    print('for choromosome '+args.chr)
 print('Writing results to '+args.out_prefix)
 
 print('Start combining...')
@@ -28,8 +31,11 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
             print(geneAE_file)
         with open(geneAE_file) as input_file:
             input_file.readline()
-            for line in input_file:
+            for line in input_file:                
                 line = line.strip().split('\t')
+                
+                if args.chr and line[0] != args.chr:
+                    continue
                 name = line[-1].split('.')[0]
                 if not name in gene_data:
                     gene_data[name] = {}
@@ -41,7 +47,7 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                 bCount = line[5]
                 if not gene in genes:
                     genes.append(gene)
-                    gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount,
+                gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount,
                                          'aCount':aCount,'bCount':bCount}
 
 
@@ -50,7 +56,7 @@ for gene in list(genes):
     noZeros = False
     for name in sample_names:
         if gene not in gene_data[name]:
-            gene_data[name][gene] = {'log2_aFC':'Inf', 'totalCount':0,
+            gene_data[name][gene] = {'log2_aFC':'inf', 'totalCount':0,
                                          'aCount':0,'bCount':0}
         if args.removeNoCounts:
             if int(gene_data[name][gene]['totalCount']) > 0:
