@@ -22,10 +22,14 @@ sample_names = []
 genes = []
 print('reading data')
 #contig    start    stop    name    aCount    bCount    totalCount    log2_aFC    n_variants    variants    gw_phased    bam
+x = 0
 for subdir, dirs, files in os.walk(args.geneAE_rootdir):
     for file in files:
         if not file.endswith('.txt'):
             continue
+        x += 1
+        if x % 1000 == 0:
+            print(str(x)+' files read')
         geneAE_file = subdir+'/'+file
         if args.verbose:
             print(geneAE_file)
@@ -50,8 +54,7 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                 gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount,
                                          'aCount':aCount,'bCount':bCount}
 
-
-
+print('Filling in values for samples that do not include all genes')
 for gene in list(genes):
     noZeros = False
     for name in sample_names:
@@ -59,6 +62,7 @@ for gene in list(genes):
             gene_data[name][gene] = {'log2_aFC':'inf', 'totalCount':0,
                                          'aCount':0,'bCount':0}
         if args.removeNoCounts:
+            print('removing genes where all samples have 0 depth')
             if int(gene_data[name][gene]['totalCount']) > 0:
                 noZeros = True
     if not noZeros:
