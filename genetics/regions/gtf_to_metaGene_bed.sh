@@ -22,13 +22,11 @@ python cutStrangeChr.py /apps/data/ftp.ensembl.org/pub/release-75/gtf/homo_sapie
     | bedtools sort -i stdin \
     | awk  '{print $1 "\t" $4 "\t" $5 "\t" $10}'  \
     | sed 's/"//g' - | sed 's/;//g' \
-    > /apps/data/ftp.nygenome.org/sec/phaser/tmp.bed
-bedops --partition /apps/data/ftp.nygenome.org/sec/phaser/tmp.bed \
+    > /tmp/tmp.bed
+bedops --partition /tmp/tmp.bed \
     | bedmap \
         --echo \
         --echo-map-id-uniq \
         --delim '\t' \
-        - /apps/data/ftp.nygenome.org/sec/phaser/tmp.bed \
+        - /tmp/tmp.bed \
         > /apps/data/ftp.nygenome.org/sec/phaser/Homo_sapiens.GRCh37.75.metaGenes.bed
-
-rm tmp.bed
