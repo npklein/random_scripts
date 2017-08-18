@@ -1,7 +1,7 @@
 import glob
 import argparse
 import os
-
+import sys
 parser = argparse.ArgumentParser(description='Make matrix (genes x samples) of the gene counts and total depth for all results in given dir + subdirs. IMPORTANT: sample names are taken by splitting bam name on . and taking first [0] element.')
 parser.add_argument('geneAE_rootdir', help='Rootdir where all gene counts can be found. Will walk through subdirs and use all *.txt files')
 parser.add_argument('out_prefix', help='Write output to <out_prefix>.geneCounts.txt, <out_prefix>.totalDepth.txt, and <out_prefix>.alleleCounts.txt')
@@ -21,6 +21,7 @@ gene_data = {}
 sample_names = []
 genes = []
 print('reading data')
+sys.stdout.flush()
 #contig    start    stop    name    aCount    bCount    totalCount    log2_aFC    n_variants    variants    gw_phased    bam
 x = 0
 for subdir, dirs, files in os.walk(args.geneAE_rootdir):
@@ -30,6 +31,7 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
         x += 1
         if x % 1000 == 0:
             print(str(x)+' files read')
+            sys.stdout.flush()
         geneAE_file = subdir+'/'+file
         if args.verbose:
             print(geneAE_file)
@@ -55,6 +57,7 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                                          'aCount':aCount,'bCount':bCount}
 
 print('Filling in values for samples that do not include all genes')
+sys.stdout.flush()
 for gene in list(genes):
     noZeros = False
     for name in sample_names:
@@ -63,15 +66,18 @@ for gene in list(genes):
                                          'aCount':0,'bCount':0}
         if args.removeNoCounts:
             print('removing genes where all samples have 0 depth')
+            sys.stdout.flush()
             if int(gene_data[name][gene]['totalCount']) > 0:
                 noZeros = True
     if not noZeros:
         print('Gene has 0 totalCount for all samples, removing '+gene)
+        sys.stdout.flush()
         for name in sample_names:
             del(gene_data[name][gene])
         genes.remove(gene)
 
 print('writing data')
+sys.stdout.flush()
 with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_prefix+'.totalDepth.txt','w') as outTotalCount:
     with open(args.out_prefix+'.alleleCounts.txt','w') as outAlleleCounts:
         for name in sample_names:
