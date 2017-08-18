@@ -1,9 +1,9 @@
 #!/bin/bashq
 
 # Merge genes into meta-genes in a GTF such that if
-# Gene A      ----------------------------
-# Gene B             ------        -----------
-# It becomes  AAAAAAAXXXXXXAAAAAAAAXXXXXXXBBBB
+# Gene A      ----------------------
+# Gene B                     -----------
+# It becomes  AAAAAAAAAAAAAAAXXXXXXXBBBB
 # where X is gene A + B
 module load Python/3.5.1-foss-2015b
 module load BEDTools/2.25.0-foss-2015b
