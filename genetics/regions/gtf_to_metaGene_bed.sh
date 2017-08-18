@@ -5,6 +5,12 @@
 # Gene B                     -----------
 # It becomes  AAAAAAAAAAAAAAAXXXXXXXBBBB
 # where X is gene A + B
+
+# NOTE: based on Ensemble GTF. This assumes columns split
+#       on tabs + spaces where column 1 = CHR, $4 = start,
+#       $5 = end, $10 = gene ID (see example.gtf in this dir)
+
+
 module load Python/3.5.1-foss-2015b
 module load BEDTools/2.25.0-foss-2015b
 module load BEDOPS/2.4.20
