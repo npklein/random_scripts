@@ -29,4 +29,5 @@ bedops --partition /tmp/tmp.bed \
         --echo-map-id-uniq \
         --delim '\t' \
         - /tmp/tmp.bed \
+    | awk '$4!="" {print $0}' \
         > /apps/data/ftp.nygenome.org/sec/phaser/Homo_sapiens.GRCh37.75.metaGenes.bed
