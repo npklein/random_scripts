@@ -83,7 +83,7 @@ for gene in list(genes):
 flush_print('writing data')
 with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_prefix+'.totalDepth.txt','w') as outTotalCount:
     with open(args.out_prefix+'.alleleCounts.txt','w') as outAlleleCounts:
-        for name in sample_names:
+        for name in sorted(sample_names):
             outLog2_aFC.write('\t'+name)
             outTotalCount.write('\t'+name)
             outAlleleCounts.write('\t'+name+'_aCount')
@@ -95,7 +95,7 @@ with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_p
             outLog2_aFC.write(gene)
             outTotalCount.write(gene)
             outAlleleCounts.write(gene)
-            for name in sample_names:
+            for name in sorted(sample_names):
                 outLog2_aFC.write('\t'+str(gene_data[name][gene]['log2_aFC']))
                 outTotalCount.write('\t'+str(gene_data[name][gene]['totalCount']))
                 outAlleleCounts.write('\t'+str(gene_data[name][gene]['aCount']))
