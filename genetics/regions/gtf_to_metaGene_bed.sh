@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bashq
 
 # Merge genes into meta-genes in a GTF such that if
 # Gene A      ----------------------------
@@ -14,10 +14,15 @@ module load BEDOPS/2.4.20
 python cutStrangeChr.py /apps/data/ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf \
     | awk '{if ($3 == "gene") print $0;}' \
     | bedtools sort -i stdin \
-    | awk  -F $'\t' 'BEGIN {OFS = FS} {print $1, $4, $5, $2, $3, $7, $9}'  \
+    | awk  '{print $1 "\t" $4 "\t" $5 "\t" $10}'  \
+    | sed 's/"//g' - | sed 's/;//g' \
     > /apps/data/ftp.nygenome.org/sec/phaser/tmp.bed
-#bedops --partition tmp.bed \
-#    | bedmap --echo --echo-map-id-uniq --delim '\t' - tmp.bed \
-#    > /apps/data/ftp.nygenome.org/sec/phaser/Homo_sapiens.GRCh37.75.metaGenes.bed
+bedops --partition /apps/data/ftp.nygenome.org/sec/phaser/tmp.bed \
+    | bedmap \
+        --echo \
+        --echo-map-id-uniq \
+        --delim '\t' \
+        - /apps/data/ftp.nygenome.org/sec/phaser/tmp.bed \
+        > /apps/data/ftp.nygenome.org/sec/phaser/Homo_sapiens.GRCh37.75.metaGenes.bed
 
-#rm tmp.bed
+rm tmp.bed
