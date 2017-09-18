@@ -57,10 +57,11 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                 totalCount = line[6]
                 aCount = line[4]
                 bCount = line[5]
+                snps = line[9]
                 if not gene in genes:
                     genes.append(gene)
                 gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount,
-                                         'aCount':aCount,'bCount':bCount}
+                                         'aCount':aCount,'bCount':bCount,'snps':snps}
 
 flush_print('Filling in values for samples that do not include all genes')
 if args.removeNoCounts:
@@ -82,24 +83,29 @@ for gene in list(genes):
 
 flush_print('writing data')
 with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_prefix+'.totalDepth.txt','w') as outTotalCount:
-    with open(args.out_prefix+'.alleleCounts.txt','w') as outAlleleCounts:
+    with open(args.out_prefix+'.alleleCounts.txt','w') as outAlleleCounts, open(args.out_prefix+'.snps.txt','w') as outSnps:
         for name in sorted(sample_names):
             outLog2_aFC.write('\t'+name)
             outTotalCount.write('\t'+name)
             outAlleleCounts.write('\t'+name+'_aCount')
             outAlleleCounts.write('\t'+name+'_bCount')
+            outSnps.write('\t'+name)
         outLog2_aFC.write('\n')
         outTotalCount.write('\n')
         outAlleleCounts.write('\n')
+        outSnps.write('\n')
         for gene in sorted(genes):
             outLog2_aFC.write(gene)
             outTotalCount.write(gene)
             outAlleleCounts.write(gene)
+            outSnps.write(gene)
             for name in sorted(sample_names):
                 outLog2_aFC.write('\t'+str(gene_data[name][gene]['log2_aFC']))
                 outTotalCount.write('\t'+str(gene_data[name][gene]['totalCount']))
                 outAlleleCounts.write('\t'+str(gene_data[name][gene]['aCount']))
                 outAlleleCounts.write('\t'+str(gene_data[name][gene]['bCount']))
+                outSnps.write('\t'+str(gene_data[name][gene]['snps']))
             outLog2_aFC.write('\n')
             outTotalCount.write('\n')
             outAlleleCounts.write('\n')
+            outSnps.write('\n')
