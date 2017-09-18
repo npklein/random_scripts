@@ -21,7 +21,7 @@ flush_print('Start combining...')
 
 gene_counts = {}
 total_depth = {}
-allele_ounts = {}
+allele_counts = {}
 sample_names = set([])
 sample_names_alleleCounts = set([])
 genes = set([])
@@ -34,31 +34,34 @@ for subdir, dirs, files in os.walk(args.matrix_rootdir):
             continue
         matrix_file = subdir+'/'+file
         with open(matrix_file) as input_file:
-            samples = input_file.readline().strip().split('\t')
+            header = input_file.readline().strip()
+            if len(header) == 0:
+                continue
+            samples = header.split('\t')
             sample_index = {}
             for index,sample in enumerate(samples):
                 if file.endswith('alleleCounts.txt'):
                     if sample not in allele_counts:
                         allele_counts[sample] = {}
                         sample_names_alleleCounts.add(sample)
-                if sample not in gene_counts:
+                elif sample not in gene_counts:
                     gene_counts[sample] = {}
                     total_depth[sample] = {}
                     sample_names.add(sample)
                 sample_index[index] = sample
 
             for line in input_file:
-                line = line.split('\t')
+                line = line.strip().split('\t')
                 gene = line[0]
                 genes.add(gene)
-                if gene in gene_data[name][gene]:
-                    raise RuntimeError('Each gene should only occur once per sample, '+gene+'happened twice for '+sample)
                 for index, element in enumerate(line[1:]):
                     if file.endswith('alleleCounts.txt'):
                         allele_counts[sample_index[index]][gene] =  element                        
                     elif file.endswith('geneCounts.txt'):
-                        gene_data[sample_index[index]][gene] =  element
-                    elif file.endswith('totalDepth'):
+                        if gene in gene_counts[sample_index[index]]:
+                            raise RuntimeError('Each gene should only occur once per sample, '+gene+' happened twice for '+sample)
+                        gene_counts[sample_index[index]][gene] =  element
+                    elif file.endswith('totalDepth.txt'):
                         total_depth[sample_index[index]][gene] = element
                     else:
                         raise RuntimeError('Wrong ending of input file for '+file)
@@ -67,12 +70,12 @@ for subdir, dirs, files in os.walk(args.matrix_rootdir):
 flush_print('Filling in values for samples that do not include all genes')
 for gene in list(genes):
     for name in sample_names:
-        if gene not in gene_data[name]:
-            gene_data[name][gene] = 'inf'
+        if gene not in gene_counts[name]:
+            gene_counts[name][gene] = 'inf'
             total_depth[name][gene] = 0
-    for nome in sample_names_alleleCount:
-        if gene not in gene_data[name]:
-            gene_data[name][gene] = 0
+    for name in sample_names_alleleCounts:
+        if gene not in allele_counts[name]:
+            allele_counts[name][gene] = 0
 
 
 
@@ -92,9 +95,10 @@ with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_p
             outTotalCount.write(gene)
             outAlleleCounts.write(gene)
             for name in sorted(sample_names):
-                outLog2_aFC.write('\t'+str(gene_data[name][gene]))
-                outTotalCount.write('\t'+str(gene_data[name][gene]))
-                outAlleleCounts.write('\t'+str(gene_data[name][gene]))
+                outLog2_aFC.write('\t'+str(gene_counts[name][gene]))
+                outTotalCount.write('\t'+str(total_depth[name][gene]))
+            for name in sorted(sample_names_alleleCounts):
+                outAlleleCounts.write('\t'+str(allele_counts[name][gene]))
             outLog2_aFC.write('\n')
             outTotalCount.write('\n')
             outAlleleCounts.write('\n')
