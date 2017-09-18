@@ -1,5 +1,6 @@
-
-jobsDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/beagleChunksNoDiagnostics/
+jobsDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/jobs/beagleChunksNoRNAedit/
+INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged/results/filterGQ20_callRate50_noRnaEditSites/
+module load tabix
 for i in {1..22}
 do
   mkdir -p $jobsDir/chr$i/
@@ -16,13 +17,20 @@ do
   CHR=`echo $line | awk '{print $1}' FS=","`
   START=`echo $line | awk '{print $2}' FS=":" | awk '{print $1}' FS="-"`
   END=`echo $line | awk '{print $2}' FS=":" | awk '{print $2}' FS="-"`
-  RESULTSDIR="/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleChunksNoDiagnostics/chr$CHR/"
+
+  numberOfSnps=$(tabix $INPUTDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.filter.GQ20_callRate50.BiallelicSNVsOnly.noRnaEditSites.gg.vcf.gz $CHR:${START}-${END} | wc -l)
+  if [ $numberOfSnps -eq 0 ];
+  then
+    echo "Chunk $CHR:${START}-${END} did not have any SNPs, skipping"
+    continue
+  fi
+  RESULTSDIR="/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/results/beagleChunksNoRNAedit/chr$CHR/"
   randomNumber=$(( $RANDOM % 2 ))
 #  if [ $randomNumber -eq 1 ];
 #  then
-     qos="regular"
+#     qos="regular"
 #  else
-#     qos="leftover"
+     qos="leftover"
 #  fi
 #  echo "qos: $qos"
 echo "#!/bin/bash
@@ -30,8 +38,8 @@ echo "#!/bin/bash
 #SBATCH --output=BeagleGenotyping.chr$CHR.$START.$END.out
 #SBATCH --error=BeagleGenotyping.chr$CHR.$START.$END.err
 #SBATCH --time=23:59:00
-#SBATCH --cpus-per-task 2
-#SBATCH --mem 12gb
+#SBATCH --cpus-per-task 8
+#SBATCH --mem 16gb
 #SBATCH --nodes 1
 #SBATCH --export=NONE
 #SBATCH --get-user-env=30L
@@ -51,11 +59,10 @@ echo \"## \"\$(date)\" Start \$0\"
 
 mkdir -p ${RESULTSDIR}
 
-INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged/results/filterGQ20_callRate50/
 
-java -Xmx15g -Djava.io.tmpdir=\$TMPDIR -XX:ParallelGCThreads=2 -jar \$EBROOTBEAGLE/beagle.27Jul16.86a.jar \
- gl=\$INPUTDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr${CHR}.filter.GQ20_callRate50.PASSonly.BiallelicSNVsOnly.noDiagnostics.gg.vcf.gz \
- out=${RESULTSDIR}/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr${CHR}.${START}.${END}.beagle.GQ20_callRate50.PASSonly.BiallelicSNVsOnly.NoDiagnosticsgenotype.probs.gg \
+java -Xmx15g -Djava.io.tmpdir=\$TMPDIR -XX:ParallelGCThreads=2 -jar \$EBROOTBEAGLE/beagle.27Jul16.86a.jar \\
+ gl=$INPUTDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.filter.GQ20_callRate50.BiallelicSNVsOnly.noRnaEditSites.gg.vcf.gz \\
+ out=${RESULTSDIR}/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.filter.GQ20_callRate50.BiallelicSNVsOnly.noRnaEditSites.probs.gg \\
  chrom=${CHR}\:${START}\-${END} \
 
  echo \"returncode: \$?\";
