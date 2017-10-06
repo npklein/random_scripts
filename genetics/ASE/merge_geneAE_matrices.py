@@ -63,6 +63,9 @@ for subdir, dirs, files in os.walk(args.matrix_rootdir):
                         gene_counts[sample_index[index]][gene] =  element
                     elif file.endswith('totalDepth.txt'):
                         total_depth[sample_index[index]][gene] = element
+                    elif file.endswith('snps.txt'):
+                        #not implemented yet
+                        continue
                     else:
                         raise RuntimeError('Wrong ending of input file for '+file)
 
