@@ -28,9 +28,9 @@ do
   randomNumber=$(( $RANDOM % 2 ))
 #  if [ $randomNumber -eq 1 ];
 #  then
-#     qos="regular"
+     qos="regular"
 #  else
-     qos="leftover"
+#     qos="leftover"
 #  fi
 #  echo "qos: $qos"
 echo "#!/bin/bash
@@ -38,8 +38,8 @@ echo "#!/bin/bash
 #SBATCH --output=BeagleGenotyping.chr$CHR.$START.$END.out
 #SBATCH --error=BeagleGenotyping.chr$CHR.$START.$END.err
 #SBATCH --time=23:59:00
-#SBATCH --cpus-per-task 8
-#SBATCH --mem 16gb
+#SBATCH --cpus-per-task 4
+#SBATCH --mem 12gb
 #SBATCH --nodes 1
 #SBATCH --export=NONE
 #SBATCH --get-user-env=30L
@@ -60,9 +60,9 @@ echo \"## \"\$(date)\" Start \$0\"
 mkdir -p ${RESULTSDIR}
 
 
-java -Xmx15g -Djava.io.tmpdir=\$TMPDIR -XX:ParallelGCThreads=2 -jar \$EBROOTBEAGLE/beagle.27Jul16.86a.jar \\
+java -Xmx12g -Djava.io.tmpdir=\$TMPDIR -XX:ParallelGCThreads=2 -jar \$EBROOTBEAGLE/beagle.27Jul16.86a.jar \\
  gl=$INPUTDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.filter.GQ20_callRate50.BiallelicSNVsOnly.noRnaEditSites.gg.vcf.gz \\
- out=${RESULTSDIR}/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.filter.GQ20_callRate50.BiallelicSNVsOnly.noRnaEditSites.probs.gg \\
+ out=${RESULTSDIR}/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.$START.$END.filter.GQ20_callRate50.BiallelicSNVsOnly.noRnaEditSites.probs.gg \\
  chrom=${CHR}\:${START}\-${END} \
 
  echo \"returncode: \$?\";

@@ -1,31 +1,24 @@
-for dr in $(seq 0 0.1 0.9);
+module load tabix
+phasedGeneChunks=../geneChunks.20170519.csv
+INITIALVCFDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged/results/filterGQ20_callRate50_noRnaEditSites/
+while read line
 do
-  echo ${dr}
-  for i in {1..22}
-  do
-
-    jobDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/jobs/phasingDifferentFilters/shapeitToVCF/DR${dr}/chr${i}
+    #echo $line
+    CHR=`echo $line | awk '{print $1}' FS=","`
+    START=`echo $line | awk '{print $2}' FS=":" | awk '{print $1}' FS="-"`
+    END=`echo $line | awk '{print $2}' FS=":" | awk '{print $2}' FS="-"`
+    numberOfSnps=$(tabix $INITIALVCFDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.filter.GQ20_callRate50.BiallelicSNVsOnly.noRnaEditSites.gg.vcf.gz $CHR:${START}-${END} | wc -l)
+    if [ $numberOfSnps -eq 0 ];
+    then
+      echo "Chunk $CHR:${START}-${END} did not have any SNPs, skipping"
+      continue
+    fi
+    jobDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/jobs/phasing/shapeitToVCF/chr${CHR}/
     mkdir -p $jobDir
-    INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/shapeit_DR${dr}/chr${i}/
-    OUTPUTDIRGENECHUNKS=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/shapeitVCF_DR${dr}/
-    mkdir -p $OUTPUTDIRGENECHUNKS
-    RESULTSDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing/results/beagleDifferentFilters/shapeitVCF_DR${dr}/chr${i}/
-    phasedGeneChunks=${OUTPUTDIRGENECHUNKS}/phaseGeneChunks_chr${i}.DR${dr}.csv
-    echo "CHR,chromosomeChunk" > $phasedGeneChunks
-    for chunk in $(find $INPUTDIR/*.hap.gz -not -empty -ls | awk '{print $11}');
-    do
-      CHR=$(echo $chunk | awk -F"." '{print $3}' | awk -F"chr" '{print $2}')
-      START=$(echo $chunk | awk -F"." '{print $4}')
-      END=$(echo $chunk | awk -F"." '{print $5}')
-      echo "$CHR,$CHR:$START-$END" >>  $phasedGeneChunks
-    done
-    echo "wrote to $phasedGeneChunks"
-    while read line
-    do
-      CHR=`echo $line | awk '{print $1}' FS=","`
-      START=`echo $line | awk '{print $2}' FS=":" | awk '{print $1}' FS="-"`
-      END=`echo $line | awk '{print $2}' FS=":" | awk '{print $2}' FS="-"`
-      CHUNK=$CHR.$START.$END.DR${dr}
+    INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/results/phasing/shapeit/chr${CHR}/
+    RESULTSDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/results/phasing/shapeitVCF/chr${CHR}/
+    phasedGeneChunks=../beagledGeneChunks.13092017.csv
+    CHUNK=$CHR.$START.$END
       echo "#!/bin/bash
 #SBATCH --job-name=chr$CHUNK.ConvertShapeitToVCF
 #SBATCH --output=ConvertShapeitToVCF.chr$CHUNK.out
@@ -86,5 +79,3 @@ echo \"## \"\$(date)\" ##  \$0 Done \"
 ">$jobDir/ConvertShapeitToVCF.chr$CHUNK.sh
 
 done<$phasedGeneChunks
-done
-done

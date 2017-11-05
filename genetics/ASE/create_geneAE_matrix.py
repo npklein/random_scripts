@@ -71,7 +71,7 @@ for gene in list(genes):
     for name in sample_names:
         if gene not in gene_data[name]:
             gene_data[name][gene] = {'log2_aFC':'inf', 'totalCount':0,
-                                         'aCount':0,'bCount':0}
+                                         'aCount':0,'bCount':0,'snps':''}
         if args.removeNoCounts:
             if int(gene_data[name][gene]['totalCount']) > 0:
                 noZeros = True
@@ -109,3 +109,5 @@ with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_p
             outTotalCount.write('\n')
             outAlleleCounts.write('\n')
             outSnps.write('\n')
+
+    print('written to '+args.out_prefix)

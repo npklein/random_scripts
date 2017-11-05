@@ -45,8 +45,7 @@ set -u
 
 ENVIRONMENT_DIR='.'
 
-
-module load Python
+module load Python/3.5.1-foss-2015b
 module load tabix
 module list
 
@@ -68,10 +67,10 @@ fi
 if [ ! -f $RESULTSDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.$START.${END}.genotypeGVCF.gg.vcf ];
 then
   python /groups/umcg-bios/tmp03/projects/phasing/selectVariants.py \\
-      $glDir//genotypes_BIOSfreeze2.1_LLDeep_noRnaEditSites_chr$CHR.vcf.gz \\
+      $glDir//genotypes_BIOSfreeze2.1_LLDeep_noRnaEditSites_chr${CHR}.vcf.gz \\
       $INTERVALDIR/all_positions_chr$CHR.$START.${END}.intervals \\
       $RESULTSDIR/genotypes_BIOSfreeze2.1_LLDeep_noRnaEditSites_merged.chr$CHR.$START.${END}.genotypeGVCF.gg.vcf
-else 
+else
   echo "$RESULTSDIR/genotypes_BIOSfreeze2.1_LLDeep_Diagnostics_merged.chr$CHR.$START.${END}.genotypeGVCF.gg.vcf already exists, using that"
 fi
 
@@ -83,6 +82,8 @@ tabix -f $RESULTSDIR/genotypes_BIOSfreeze2.1_LLDeep_noRnaEditSites_merged.chr$CH
 echo "md5sum..."
 md5sum $RESULTSDIR/genotypes_BIOSfreeze2.1_LLDeep_noRnaEditSites_merged.chr$CHR.$START.${END}.genotypeGVCF.gg.vcf.gz > \
       $RESULTSDIR/genotypes_BIOSfreeze2.1_LLDeep_noRnaEditSites_merged.chr$CHR.$START.${END}.genotypeGVCF.gg.vcf.gz.md5
+md5sum $RESULTSDIR/genotypes_BIOSfreeze2.1_LLDeep_noRnaEditSites_merged.chr$CHR.$START.${END}.genotypeGVCF.gg.vcf.gz.tbi > \
+      $RESULTSDIR/genotypes_BIOSfreeze2.1_LLDeep_noRnaEditSites_merged.chr$CHR.$START.${END}.genotypeGVCF.gg.vcf.gz.tbi.md5
 
 echo \"## \"\$(date)\" Done \$0\"
 
