@@ -139,7 +139,8 @@ do
     mv \$phaserOutPrefix.haplotypes.txt \$RESULTSDIRCHUNK/haplotypes/ || true
     mv \$phaserOutPrefix.haplotypic_counts.txt \$RESULTSDIRCHUNK/haplotypic_counts/ || true
     mv \$phaserOutPrefix.allele_config.txt \$RESULTSDIRCHUNK/allele_config/ || true
-    mv \$phaserOutPrefix.vcf.gz \$RESULTSDIRCHUNK/vcf_per_sample/ || bcftools view --samples \$SAMPLENAME -Oz -o \$RESULTSDIRCHUNK/vcf_per_sample_no_counts/\${VCFOUT}.vcf.gz \$VCF
+    mv \$phaserOutPrefix.vcf.gz \$RESULTSDIRCHUNK/vcf_per_sample/ || \
+            bcftools view --samples \$SAMPLENAME -Oz -o \$RESULTSDIRCHUNK/vcf_per_sample_no_counts/\${VCFOUT}.vcf.gz \$VCF; tabix \$RESULTSDIRCHUNK/vcf_per_sample_no_counts/\${VCFOUT}.vcf.gz
     mv \$phaserOutPrefix.vcf.gz.tbi \$RESULTSDIRCHUNK/vcf_per_sample/ || true
 
 done<$CHUNKFILE
