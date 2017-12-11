@@ -2,6 +2,8 @@ import glob
 import argparse
 import os
 import sys
+import math 
+
 parser = argparse.ArgumentParser(description='Make matrix (genes x samples) of the gene counts and total depth for all results in given dir + subdirs. IMPORTANT: sample names are taken by splitting bam name on . and taking first [0] element.')
 parser.add_argument('geneAE_rootdir', help='Rootdir where all gene counts can be found. Will walk through subdirs and use all *.txt files')
 parser.add_argument('out_prefix', help='Write output to <out_prefix>.geneCounts.txt, <out_prefix>.totalDepth.txt, and <out_prefix>.alleleCounts.txt')
@@ -60,8 +62,32 @@ for subdir, dirs, files in os.walk(args.geneAE_rootdir):
                 snps = line[9]
                 if not gene in genes:
                     genes.append(gene)
-                gene_data[name][gene] = {'log2_aFC':log2_aFC, 'totalCount':totalCount,
-                                         'aCount':aCount,'bCount':bCount,'snps':snps}
+                # when metagenes are used there can be multiple instances of the same gene. Because of this
+                # each instance has to be saved and merged together later
+                if gene not in gene_data[name]:
+                    gene_data[name][gene] = []
+                gene_data[name][gene].append({'log2_aFC':log2_aFC, 'totalCount':totalCount,
+                                         'aCount':aCount,'bCount':bCount,'snps':snps}) 
+for name in gene_data:
+    totalCount = 0
+    aCount = 0
+    bCount = 0
+    snpsList = []
+    for gene in gene_data[name]:
+        for data in gene_data[name][gene]:
+            totalCount += int(data['totalCount'])
+            aCount += int(data['aCount'])
+            bCount += int(data['bCount'])
+            snpsList += data['snps'].split(',')
+        if aCount == 0 :
+            log2_aFC = '-Inf'
+        elif bCount == 0:
+            log2_aFC = 'Inf'
+        else:
+            log2_aFC = math.log(aCount/bCount,2)
+        snps = ','.join(snpsList)
+        gene_data[name][gene] = {'log2_aFC':str(log2_aFC), 'totalCount':str(totalCount),
+                                         'aCount':str(aCount),'bCount':str(bCount),'snps':snps}
 
 flush_print('Filling in values for samples that do not include all genes')
 if args.removeNoCounts:
@@ -110,4 +136,4 @@ with open(args.out_prefix+'.geneCounts.txt','w') as outLog2_aFC, open(args.out_p
             outAlleleCounts.write('\n')
             outSnps.write('\n')
 
-    print('written to '+args.out_prefix)
+print('written to '+args.out_prefix)

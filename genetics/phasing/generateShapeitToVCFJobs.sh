@@ -3,7 +3,10 @@ phasedGeneChunks=../geneChunks.20170519.csv
 INITIALVCFDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged/results/filterGQ20_callRate50_noRnaEditSites/
 while read line
 do
-    #echo $line
+    if [ "$line" = "CHR,chromosomeChunk" ];
+    then
+      continue
+    fi
     CHR=`echo $line | awk '{print $1}' FS=","`
     START=`echo $line | awk '{print $2}' FS=":" | awk '{print $1}' FS="-"`
     END=`echo $line | awk '{print $2}' FS=":" | awk '{print $2}' FS="-"`
@@ -13,6 +16,8 @@ do
       echo "Chunk $CHR:${START}-${END} did not have any SNPs, skipping"
       continue
     fi
+    echo $line
+
     jobDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/jobs/phasing/shapeitToVCF/chr${CHR}/
     mkdir -p $jobDir
     INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/results/phasing/shapeit/chr${CHR}/
@@ -29,7 +34,7 @@ do
 #SBATCH --nodes 1
 #SBATCH --export=NONE
 #SBATCH --get-user-env=30L
-#SBATCH --qos=dev
+#SBATCH --qos=regular
 
 set -e
 set -u
@@ -45,23 +50,23 @@ echo \"## \"\$(date)\" Start \$0\"
 
 mkdir -p ${RESULTSDIR}
 
-zcat ${INPUTDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.hap.gz \\
-        > ${INPUTDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.haps
+zcat ${INPUTDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.hap.gz \\
+        > ${INPUTDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.haps
 
-if [ -f  ${INPUTDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.hap.gz.sample ];
+if [ -f  ${INPUTDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.hap.gz.sample ];
 then
-    mv ${INPUTDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.hap.gz.sample \\
-        ${INPUTDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.sample
+    mv ${INPUTDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.hap.gz.sample \\
+        ${INPUTDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.sample
 fi
 
 shapeit \\
  -convert \\
- --input-haps ${INPUTDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased \\
- --output-vcf ${RESULTSDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.vcf.gz
+ --input-haps ${INPUTDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased \\
+ --output-vcf ${RESULTSDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.vcf.gz
 
  echo \"returncode: \$?\";
  cd ${RESULTSDIR}
- bname=\$(basename ${RESULTSDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.vcf.gz)
+ bname=\$(basename ${RESULTSDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.vcf.gz)
 
  # has to be bgzipped
  gunzip \${bname}

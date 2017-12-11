@@ -1,9 +1,12 @@
 module load tabix
 phasedGeneChunks=../geneChunks.20170519.csv
-§INITIALVCFDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged/results/filterGQ20_callRate50_noRnaEditSites/
+INITIALVCFDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged/results/filterGQ20_callRate50_noRnaEditSites/
 while read line
 do
-    #echo $line
+    if [ "$line" = "CHR,chromosomeChunk" ];
+    then
+      continue
+    fi
     CHR=`echo $line | awk '{print $1}' FS=","`
     START=`echo $line | awk '{print $2}' FS=":" | awk '{print $1}' FS="-"`
     END=`echo $line | awk '{print $2}' FS=":" | awk '{print $2}' FS="-"`
@@ -13,11 +16,11 @@ do
       echo "Chunk $CHR:${START}-${END} did not have any SNPs, skipping"
       continue
     fi
+    echo $line
     jobDir=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/jobs/phasing/fillAC/chr${CHR}/
     mkdir -p $jobDir
     INPUTDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/results/phasing/shapeitVCF/chr${CHR}/
     RESULTSDIR=/groups/umcg-bios/tmp03/projects/genotypes_BIOS_LLDeep_Diagnostics_merged_phasing_noRnaEditing/results/phasing/shapeitVCFwithAC/chr${CHR}/
-    phasedGeneChunks=../beagledGeneChunks.13092017.csv
     CHUNK=$CHR.$START.$END
       echo "#!/bin/bash
 #SBATCH --job-name=chr$CHUNK.fillAC
@@ -45,15 +48,15 @@ echo \"## \"\$(date)\" Start \$0\"
 
 mkdir -p ${RESULTSDIR}
 
-bcftools +fill-tags ${INPUTDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.vcf.gz \\
-          -o $RESULTSDIR/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.withAC.vcf.gz \\
+bcftools +fill-tags ${INPUTDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.vcf.gz \\
+          -o $RESULTSDIR/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.withAC.vcf.gz \\
           -O z
 
-tabix -f $RESULTSDIR/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.withAC.vcf.gz
+tabix -f $RESULTSDIR/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.withAC.vcf.gz
 
 echo \"returncode: \$?\";
 cd ${RESULTSDIR}
-name=\$(basename ${RESULTSDIR}/genotypes_BIOS_LLDeep_Diagnostics_merged.chr$CHUNK.shapeit.phased.withAC.vcf.gz)
+name=\$(basename ${RESULTSDIR}/genotypes_BIOS_LLDeep_noRNAedit_merged.chr$CHUNK.shapeit.phased.withAC.vcf.gz)
 md5sum $name > $name.md5
 
 cd -
