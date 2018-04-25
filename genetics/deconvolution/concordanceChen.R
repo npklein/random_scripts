@@ -1,3 +1,5 @@
+# Author: Raúl Aguire
+# Modified by: Niek
 
 library(data.table)
 library(DT)
