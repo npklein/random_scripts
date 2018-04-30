@@ -58,8 +58,9 @@ for subdir, dirs, files in os.walk(args.matrix_rootdir):
                     if file.endswith('alleleCounts.txt'):
                         allele_counts[sample_index[index]][gene] =  element                        
                     elif file.endswith('geneCounts.txt'):
-                        if gene in gene_counts[sample_index[index]]:
-                            raise RuntimeError('Each gene should only occur once per sample, '+gene+' happened twice for '+sample)
+#                        if gene in gene_counts[sample_index[index]]:
+#                            raise RuntimeError('Each gene should only occur once per sample, '+gene+' happened twice for '+sample)
+                        print(gene)
                         gene_counts[sample_index[index]][gene] =  element
                     elif file.endswith('totalDepth.txt'):
                         total_depth[sample_index[index]][gene] = element
