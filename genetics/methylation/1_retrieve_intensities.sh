@@ -14,7 +14,7 @@ set -x
 set -e
 # Retrieves signal-intensities from Illumina idat-files. Returns detection p-values and signal intensities for genomic CpGs and control probes.
 # Written by Benjamin Lehne (Imperial College London), Alexander Drong (Oxford University) and Reiner Schulz (King's College London)
-# Modified by Niek de Klein
+# Modified by Niek de Klein (niekdeklein@gmail.com)
 OUTDIR=/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/output/CPACOR
 mkdir -p $OUTDIR
 

@@ -1,4 +1,4 @@
-# Written by ?, modified by Niek
+# Written by ?, modified by niekdeklein@gmail.com
 #!/bin/bash
 module load R/3.3.3-foss-2015b
 
