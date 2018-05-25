@@ -1,4 +1,4 @@
-# niekdeklein@gmail.com
+
 OUTDIR=/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/output/CPACOR
 mkdir -p $OUTDIR
 

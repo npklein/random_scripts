@@ -15,7 +15,7 @@ set -e
 # Sets NAs based on the detection p-value and calculates marker and sample call-rates. Filters samples based on sample calle-rate
 # Performs Quantile Normalisation and Calculates Beta-values.
 # Written by Benjamin Lehne (Imperial College London) and Alexander Drong (Oxford University)
-# Modified by Niek de Klein (niekdeklein@gmail.com)
+# Modified by Niek de Klein
 
 INPUTDIR=/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/output/CPACOR
 

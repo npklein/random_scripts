@@ -1,5 +1,5 @@
 #!/bin/bash
-# Written by ?, modified by niekdeklein@gmail.com
+# Written by ?, modified by Niek
 module load R/3.3.3-foss-2015b
 
 
