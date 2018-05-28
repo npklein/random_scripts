@@ -4,9 +4,10 @@ module load R/3.3.3-foss-2015b
 
 
 time R --vanilla << "EOF"
-path.out="/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/output/extra_analysis/model4/"
+modelName <- 'model4'
+path.out=paste0("/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/output/extra_analysis/",modelName,"/")
 dir.create(file.path("/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/output/", "extra_analysis/"))
-dir.create(file.path("/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/output/extra_analysis/", "model4"))
+dir.create(file.path("/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/output/extra_analysis/", modelName))
 print(path.out)
 phe <- read.table("/groups/umcg-lld/tmp03/phenotype_data/LLD_data.txt",sep="\t",header=T)
 phe2 <- read.table("/groups/umcg-lld/tmp03/umcg-ndeklein/EWAS/LLD_1135subjects_ImmuneMarkers.txt",
@@ -61,8 +62,8 @@ for(cpg in cpgs_to_test){
                           'pheMerged[,"antrop_age"] +',
                           'pheMerged[,"Smoking"] +',
                           'pheMerged[,"PC1_cp"] + pheMerged[,"PC2_cp"] + pheMerged[,"PC3_cp"] + pheMerged[,"PC4_cp"] + pheMerged[,"PC5_cp"] + pheMerged[,"PC6_cp"] + pheMerged[,"PC7_cp"] + pheMerged[,"PC8_cp"] + pheMerged[,"PC9_cp"] + pheMerged[,"PC10_cp"] + pheMerged[,"PC11_cp"] + pheMerged[,"PC12_cp"] + pheMerged[,"PC13_cp"] + pheMerged[,"PC14_cp"] + pheMerged[,"PC15_cp"] + pheMerged[,"PC16_cp"] + pheMerged[,"PC17_cp"] + pheMerged[,"PC18_cp"] + pheMerged[,"PC19_cp"] + pheMerged[,"PC20_cp"] + pheMerged[,"PC21_cp"] + pheMerged[,"PC22_cp"] + pheMerged[,"PC23_cp"] + pheMerged[,"PC24_cp"] + pheMerged[,"PC25_cp"] + pheMerged[,"PC26_cp"] + pheMerged[,"PC27_cp"] + pheMerged[,"PC28_cp"] + pheMerged[,"PC29_cp"] + pheMerged[,"PC30_cp"]'))
-    for(cpg in other_cpgs){
-        model <- paste0(model, ' + beta["',cpg,'",]')
+    for(cpgName in other_cpgs){
+        model <- paste0(model, ' + beta["',cpgName,'",]')
     }
     lfla=as.formula(model)
 
@@ -89,8 +90,8 @@ for(cpg in cpgs_to_test){
     colnames(res) <- c('BETA','SE','t-val','P_VAL','N_samp','mean','SD','probeID')
     res <- res[c('probeID','BETA','SE','P_VAL','N_samp','mean','SD')]
     d <- format(Sys.Date(),"%d%m%Y")
-    out <- paste0(path.out,cpg,'_model4_LLD_',d,'.txt')
-    write.table(res,out,sep="\t",quote=F,row.names=FALSE)
+    out <- paste0(path.out,cpg,'_',modelName,'_LLD_',d,'.txt')
+    write.table(res,out,sep="\t",quote=F,row.names=T, col.names = NA)
     print(paste0('written to ',out))
     rm(res)
 }
